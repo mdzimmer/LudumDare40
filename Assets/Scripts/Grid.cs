@@ -5,26 +5,54 @@ using UnityEngine;
 public class Grid {
     public Dictionary<Vector2, Ship> tiles;
 
-    int TILE_HALF_HEIGHT = 1;
-    int TILE_HALF_WIDTH = 2;
+    GameManager gm;
+
+    float TILE_SIZE = 1.0f;
 
 	public Grid()
     {
+        gm = GameManager.GetManager();
         tiles = new Dictionary<Vector2, Ship>();
     }
 
-    public Vector2 mouseToTile()
+    public Vector2 MouseToTile()
     {
-        Vector2 worldMousePosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-        int mapX = (int)(worldMousePosition.x / TILE_HALF_WIDTH + worldMousePosition.y / TILE_HALF_HEIGHT) / 2;
-        int mapY = (int)(worldMousePosition.y / TILE_HALF_HEIGHT - worldMousePosition.x / TILE_HALF_WIDTH) / 2;
-        return new Vector2(mapX, mapY);
+        Vector3 worldMousePosition = gm.GetMousePosition();
+        Vector2 output = new Vector2(
+            (int)Mathf.Floor(worldMousePosition.z / TILE_SIZE),
+            (int)Mathf.Floor(-worldMousePosition.x / TILE_SIZE)
+            );
+        return output;
     }
 
-    public Vector2 tileToPosition(Vector2 tile)
+    public Vector3 TileToPosition(Vector2 tile)
     {
-        float positionX = (tile.x - tile.y) * TILE_HALF_WIDTH;
-        float positionY = (tile.x + tile.y) * TILE_HALF_HEIGHT;
-        return new Vector2(positionX, positionY);
+        Vector3 output = new Vector3(
+            -tile.y * TILE_SIZE - TILE_SIZE / 2.0f,
+            0.0f,
+            tile.x * TILE_SIZE + TILE_SIZE / 2.0f
+            );
+        return output;
+    }
+
+    public List<Vector2> GetNeighbors(Vector2 tile)
+    {
+        List<Vector2> output = new List<Vector2>();
+        List<Vector2> permutations = new List<Vector2>()
+        {
+            new Vector2(1,0),
+            new Vector2(-1,0),
+            new Vector2(0,1),
+            new Vector2(0,-1)
+        };
+        foreach (Vector2 permutation in permutations)
+        {
+            Vector2 neighborTile = tile + permutation;
+            if (tiles.ContainsKey(neighborTile))
+            {
+                output.Add(neighborTile);
+            }
+        }
+        return output;
     }
 }
