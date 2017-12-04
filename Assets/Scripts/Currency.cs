@@ -6,13 +6,17 @@ using UnityEngine.UI;
 public class Currency : MonoBehaviour
 {
     public int goalValue = 0;
+
+    GameManager gm;
     int curValue = 0;
     Text text;
 
-    float TICK_TIME = 0.1f;
+    float TICK_TIME = 0.01f;
+    int MAX_VALUE = 100;
 
     void Start()
     {
+        gm = GameManager.GetManager();
         StartCoroutine(UpdateValue());
         text = GetComponent<Text>();
         UpdateDisplay();
@@ -21,6 +25,11 @@ public class Currency : MonoBehaviour
     public void IncrementValue(int amt)
     {
         goalValue += amt;
+        if (goalValue >= MAX_VALUE)
+        {
+            goalValue = MAX_VALUE;
+            gm.EndGame();
+        }
     }
 
     void UpdateDisplay()

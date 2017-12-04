@@ -12,18 +12,19 @@ public class Ship {
     Config config;
     Grid grid;
     GameObject model;
+    Color startColor;
 
     float NO_HOVER_SCALE = 0.5f;
     float HOVER_SCALE = 0.6f;
 
-    public Ship(Grid _grid, string configFile, Vector2 originTile)
+    public Ship(string configFile, Vector2 originTile)
     {
         gm = GameManager.GetManager();
-        config = JsonUtility.FromJson<Config>(File.ReadAllText(Path.Combine(Application.streamingAssetsPath, configFile + ".json")));
+        grid = gm.grid;
+        config = LoadConfig(configFile);
         model = gm.CreatePrefab(config.name);
-        grid = _grid;
         UpdateTiles(originTile);
-        //model.transform.position = grid.TileToPosition(originTile);
+        startColor = model.transform.GetChild(0).GetComponent<MeshRenderer>().material.GetColor("_Color");
     }
 
     public void Build()
@@ -35,33 +36,17 @@ public class Ship {
         {
             grid.tiles[tile] = this;
         }
+        SetOpacity(1.0f);
     }
     
     public Selector GenerateSelector(Vector3 position)
     {
-        //TEMPORARY
         GameObject go = gm.CreatePrefab("Selector");
         go.transform.position = position;
         Vector3 popUp = new Vector3(1.0f / 3.0f, 1.0f / 3.0f, -1.0f / 3.0f).normalized * 1.0f;
         go.transform.position = new Vector3(go.transform.position.x + popUp.x, go.transform.position.y + popUp.y, go.transform.position.z + popUp.z);
         Selector selector = go.GetComponent<Selector>();
-        selector.Initialize(
-            new Selector.Selection(
-                "spears",
-                Actions.TestAbility,
-                Color.red
-                ),
-            new Selector.Selection(
-                "party",
-                Actions.TestBuild,
-                Color.blue
-                ),
-            new Selector.Selection(
-                "beer",
-                Actions.TestBuild,
-                Color.green
-                )
-            );
+        selector.Initialize(config);
         return selector;
     }
 
@@ -69,10 +54,8 @@ public class Ship {
     {
         foreach (Vector2 tile in tileLayout)
         {
-            //Debug.Log(tile);
             if (grid.tiles.ContainsKey(tile))
             {
-                //Debug.Log("occupied " + tile);
                 return false;
             }
         }
@@ -84,7 +67,6 @@ public class Ship {
                 Ship neighborShip = grid.tiles[neighbor];
                 if (neighborShip != this && neighborShip.usedTiles.Contains(neighbor))
                 {
-                    //Debug.Log(tile + " : " + neighbor);
                     return true;
                 }
             }
@@ -92,7 +74,7 @@ public class Ship {
         return false;
     }
 
-    public void Destroy()
+    public void Stop()
     {
         gm.DoDestroy(model);
         foreach (Vector2 layoutTile in tileLayout)
@@ -119,11 +101,45 @@ public class Ship {
         tileLayout.AddRange(unusedTiles);
     }
 
-    class Config
+    public void SetOpacity(float opacity)
+    {
+        foreach (Transform child in model.transform)
+        {
+            MeshRenderer mr = child.gameObject.GetComponent<MeshRenderer>();
+            Color color = mr.material.GetColor("_Color");
+            color.a = opacity;
+            mr.material.SetColor("_Color", color);
+        }
+    }
+
+    public void SetTint(Color? tint = null)
+    {
+        if (tint == null)
+        {
+            tint = startColor;
+        }
+        Color appliedTint = (Color)tint;
+        appliedTint.a = model.transform.GetChild(0).GetComponent<MeshRenderer>().material.GetColor("_Color").a;
+        foreach (Transform child in model.transform)
+        {
+            MeshRenderer mr = child.gameObject.GetComponent<MeshRenderer>();
+            mr.material.SetColor("_Color", appliedTint);
+        }
+    }
+
+    public static Config LoadConfig(string configFile)
+    {
+        return JsonUtility.FromJson<Config>(File.ReadAllText(Path.Combine(Application.streamingAssetsPath, configFile + ".json")));
+    }
+
+    public class Config
     {
         public string name;
+        public string buildFlavor;
         public int[] usedTiles;
         public int[] unusedTiles;
+        public int buildCost;
+        public string[] canBuild;
         public string abilityName;
         public int abilityCost;
         public string abilityFlavor;
