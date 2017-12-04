@@ -56,7 +56,7 @@ public class Selector : MonoBehaviour {
                 element.SetActive(false);
                 continue;
             }
-            element.GetComponent<RectTransform>().anchoredPosition = new Vector2(buildWidth / (config.canBuild.Length + 1.0f), -11.5f);
+            element.GetComponent<RectTransform>().anchoredPosition = new Vector2((buildWidth / (config.canBuild.Length + 1.0f)) * (i + 1), -11.5f);
             element.GetComponent<Button>().action = NameToAction(config.canBuild[i]);
             Ship.Config targetConfig = Ship.LoadConfig(config.canBuild[i]);
             element.GetComponent<Button>().cost = targetConfig.buildCost;
