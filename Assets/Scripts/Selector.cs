@@ -29,6 +29,7 @@ public class Selector : MonoBehaviour {
             button.cooldown = config.abilityCooldown;
             button.flavor = config.abilityFlavor;
             button.cost = config.abilityCost;
+            button.action = NameToAction(config.abilityName);
         } else
         {
             elements["AbilityBox"].SetActive(false);
