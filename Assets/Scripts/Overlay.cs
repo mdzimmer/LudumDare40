@@ -13,8 +13,8 @@ public class Overlay : MonoBehaviour {
     //float heldTime = 0.0f;
     GameManager gm;
 
-    string WELCOME_MESSAGE = "welcome";
-    string END_MESSAGE = "game end";
+    string WELCOME_MESSAGE = "Welcome to <game title>!\nIn a future where the world has flooded a roaming flotilla of Vikings take what they want. As chieften you must spend this plunder before it fills your hulls and sinks your ship.\nLeft click to interact, Right click to move the camera.";
+    string END_MESSAGE = "\n\nThe wealth of your people was too much for bouyancy to handle. Perhaps the next generation of conquerers will find your sunken wealth and laugh at the drowned.";
     //string CONTINUE_MESSAGE = "Left Click to continue...";
     float HOLD_REQUIRED = 1.0f;
 

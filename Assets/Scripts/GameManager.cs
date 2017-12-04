@@ -27,13 +27,6 @@ public class GameManager : MonoBehaviour {
     float SPAWN_BUFFER_DISTANCE = 15.0f;
     float HELICOPTER_HEIGHT = 1.0f;
     float GHOST_OPACITY = 0.5f;
-    //int MIN_PAYLOAD = 1;
-    //int MAX_PAYLOAD = 10;
-
-    //// Use this for initialization
-    //void Start()
-    //{
-    //}
 
     // Update is called once per frame
     void Update () {
@@ -46,12 +39,9 @@ public class GameManager : MonoBehaviour {
         Vector2 mouseTile = grid.MouseToTile();
         Ship shipOnTile = grid.tiles.ContainsKey(mouseTile) ? grid.tiles[mouseTile] : null;
         Vector3 vectorOrigin = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-        //vectorOrigin.y = vectorOrigin.y / Mathf.Sqrt(2.0f);
         Vector3 vectorEnd = GetMousePosition();
         Vector3 vector = vectorEnd - vectorOrigin;
-        //Vector3 vector = new Vector3(-1.0f / 3.0f, -1.0f / 3.0f, 1.0f / 3.0f).normalized;
         RaycastHit[] hits = Physics.RaycastAll(vectorOrigin, vector);
-        //Debug.DrawLine(vectorOrigin, vectorOrigin + vector * 100.0f, Color.red, 1000.0f);
         bool hitButton = false;
         foreach (RaycastHit hit in hits)
         {
@@ -141,35 +131,11 @@ public class GameManager : MonoBehaviour {
         startShip.Build();
         helicopters = new List<Helicopter>();
         StartCoroutine(SpawnHelicopters());
+        currency.Initialize();
     }
 
     public void EndGame()
     {
-        //running = false;
-        //StopCoroutine(SpawnHelicopters());
-        //Queue<Ship> ships = new Queue<Ship>();
-        //foreach (KeyValuePair<Vector2, Ship> pair in grid.tiles)
-        //{
-        //    if (!ships.Contains(pair.Value))
-        //    {
-        //        ships.Enqueue(pair.Value);
-        //    }
-        //}
-        //while (ships.Count > 0)
-        //{
-        //    Ship ship = ships.Dequeue();
-        //    ship.Stop();
-        //}
-        //foreach (Helicopter helicopter in helicopters)
-        //{
-        //    if (helicopter != null)
-        //    {
-        //        Destroy(helicopter.gameObject);
-        //    }
-        //}
-        //overlay.GoToEnd();
-        //Application.LoadLevel("Scenes/test_scene");
-        //SceneManager.LoadScene("test_scene", LoadSceneMode.Single);
         if (running)
         {
             running = false;
