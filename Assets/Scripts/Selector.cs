@@ -4,63 +4,66 @@ using UnityEngine;
 using UnityEngine.UI;
 
 public class Selector : MonoBehaviour {
-    public GameObject buildButtonOne;
-    public GameObject buildButtonTwo;
-    public GameObject buildButtonThree;
-    public GameObject abilityButton;
+    public Dictionary<string, GameObject> elements;
 
     GameManager gm;
-    //List<Element> elements;
 
-    //float HORIZONTAL_OFFSET_DISTANCE = 0.8f;
-    //float VERTICAL_OFFSET_DISTANCE = 0.8f;
-    //float HORIZONTAL_OFFSET = 1f;
-    //float VERTICAL_OFFSET = 1.5f;
-    //float POP_IN_TIME = 0.05f;
-    //float POP_OUT_TIME = 0.05f;
-    //float MIN_SCALE = 0.001f;
-
-    public void Initialize(Selection? ability, params Selection[] builds)
+    public void Initialize(Ship.Config config)
     {
         gm = GameManager.GetManager();
-        //elements = new List<Element>();
-        //elements.Add(CreateElement("Arrow", new Vector2(0, 0.35f)));
-        //for (int i = 0; i < selections.Length; i++)
-        //{
-        //    Selection selection = selections[i];
-        //    Vector2 offset = new Vector2();
-        //    offset.x = (i - selections.Length / 2) * HORIZONTAL_OFFSET;
-        //    offset.y = VERTICAL_OFFSET;
-        //    elements.Add(CreateElement(selection.prefabName, offset));
-        //}
-        if (ability != null)
+        elements = new Dictionary<string, GameObject>();
+        foreach (Transform child in transform)
         {
-            ApplySelection((Selection)ability, abilityButton);
+            GameObject go = child.gameObject;
+            elements[go.name] = go;
+        }
+        float buildWidth = 70.0f;
+        if (config.abilityName != "") {
+            elements["Ability"].GetComponent<Image>().sprite = GetSprite(config.abilityName);
+            Button button = elements["Ability"].GetComponent<Button>();
+            button.name = config.abilityName;
+            button.cooldown = config.abilityCooldown;
+            button.flavor = config.abilityFlavor;
+            button.cost = config.abilityCost;
         } else
         {
-            //TODO clean up action elements
+            elements["AbilityBox"].SetActive(false);
+            elements["Ability"].SetActive(false);
+            buildWidth = 100.0f;
         }
-        switch (builds.Length)
+        if (buildWidth == 100.0f)
         {
-            case 0:
-                //TODO: clean up build elements
-                break;
-            case 1:
-                ApplySelection(builds[0], buildButtonOne);
-                buildButtonTwo.SetActive(false);
-                buildButtonThree.SetActive(false);
-                break;
-            case 2:
-                ApplySelection(builds[0], buildButtonOne);
-                ApplySelection(builds[1], buildButtonTwo);
-                buildButtonThree.SetActive(false);
-                break;
-            case 3:
-                ApplySelection(builds[0], buildButtonOne);
-                ApplySelection(builds[1], buildButtonTwo);
-                ApplySelection(builds[2], buildButtonThree);
-                break;
+            elements["BuildBox"].GetComponent<RectTransform>().sizeDelta = new Vector2(buildWidth, 27.22f);
         }
+        for (int i = 0; i < 3; i++)
+        {
+            string name = "BuildOne";
+            switch (i)
+            {
+                case 1:
+                    name = "BuildTwo";
+                    break;
+                case 2:
+                    name = "BuildThree";
+                    break;
+            }
+            GameObject element = elements[name];
+            if (config.canBuild.Length < i + 1)
+            {
+                element.SetActive(false);
+                continue;
+            }
+            element.GetComponent<RectTransform>().anchoredPosition = new Vector2(buildWidth / (config.canBuild.Length + 1.0f), -11.5f);
+            element.GetComponent<Button>().action = NameToAction(config.canBuild[i]);
+            Ship.Config targetConfig = Ship.LoadConfig(config.canBuild[i]);
+            element.GetComponent<Button>().cost = targetConfig.buildCost;
+            element.GetComponent<Button>().name = targetConfig.name;
+            element.GetComponent<Button>().flavor = targetConfig.buildFlavor;
+        }
+        elements["DescriptionBox"].SetActive(false);
+        elements["Flavor"].SetActive(false);
+        elements["Name"].SetActive(false);
+        elements["Cost"].SetActive(false);
         StartCoroutine(PopIn());
     }
 
@@ -70,114 +73,42 @@ public class Selector : MonoBehaviour {
         StartCoroutine(PopOut());
     }
 
-    //private Element CreateElement(string prefabName, Vector2 offset)
-    //{
-    //    GameObject go = gm.CreatePrefab(prefabName);
-    //    SpriteRenderer sr = go.GetComponent<SpriteRenderer>();
-    //    go.transform.position = (Vector2)transform.position + new Vector2(offset.x * HORIZONTAL_OFFSET_DISTANCE, offset.y * VERTICAL_OFFSET_DISTANCE);
-    //    go.transform.parent = this.transform;
-    //    go.SetActive(false);
-    //    Element output = new Element(go, sr);
-    //    return output;
-    //}
+    Actions.Action NameToAction(string name)
+    {
+        switch (name)
+        {
+            case "TestAbility":
+                return Actions.TestAbility;
+            case "test_ship":
+                return Actions.TestBuild;
+        }
+        return null;
+    }
 
     Sprite GetSprite(string spriteName)
     {
         return Resources.Load("Sprites/" + spriteName) as Sprite;
     }
 
-    void ApplySelection(Selection selection, GameObject element)
+    void AddByEnable(Queue<GameObject> queue, string name, bool desiredEnabled)
     {
-        //element.GetComponent<Image>().sprite = GetSprite((selection).spriteName);
-        element.GetComponent<Button>().action = selection.action;
+        GameObject go = elements[name];
+        if (go.activeSelf == desiredEnabled)
+        {
+            queue.Enqueue(go);
+        }
     }
 
     IEnumerator PopIn()
     {
-        //Queue<Element> queue = new Queue<Element>();
-        //foreach(Element element in elements)
-        //{
-        //    queue.Enqueue(element);
-        //}
-        //while (queue.Count != 0)
-        //{
-        //    Element element = queue.Dequeue();
-        //    element.go.SetActive(true);
-        //    Vector2 startScale = element.go.transform.localScale;
-        //    element.go.transform.localScale = new Vector3(MIN_SCALE, MIN_SCALE, 1.0f);
-        //    float elapsedTime = 0f;
-        //    while (elapsedTime < POP_IN_TIME)
-        //    {
-        //        float curScale = Mathf.Max((elapsedTime / POP_IN_TIME) * startScale.x, MIN_SCALE);
-        //        element.go.transform.localScale = new Vector3(curScale, curScale, 1.0f);
-        //        elapsedTime += Time.deltaTime;
-        //        yield return new WaitForEndOfFrame();
-        //    }
-        //    element.go.transform.localScale = startScale;
-        //}
+        //Queue<GameObject> queue = new Queue<GameObject>();
+        //AddByEnable()
         yield return new WaitForEndOfFrame();
     }
 
     IEnumerator PopOut()
     {
-        //Queue<Element> queue = new Queue<Element>();
-        //foreach (Element element in elements)
-        //{
-        //    if (element.go.activeSelf)
-        //    {
-        //        queue.Enqueue(element);
-        //    }
-        //}
-        //while (queue.Count != 0)
-        //{
-        //    Element element = queue.Dequeue();
-        //    Vector2 startScale = element.go.transform.localScale;
-        //    element.go.transform.localScale = new Vector3(MIN_SCALE, MIN_SCALE, 1.0f);
-        //    float elapsedTime = 0f;
-        //    while (elapsedTime < POP_OUT_TIME)
-        //    {
-        //        float curScale = (1.0f - (elapsedTime / POP_OUT_TIME)) * startScale.x;
-        //        element.go.transform.localScale = new Vector3(curScale, curScale, 1.0f);
-        //        elapsedTime += Time.deltaTime;
-        //        yield return new WaitForEndOfFrame();
-        //    }
-        //    element.go.SetActive(false);
-        //}
         Destroy(this.gameObject);
         yield return new WaitForEndOfFrame();
     }
-
-    public struct Selection
-    {
-        //public string prefabName;
-        //public abilitys.ability ability;
-
-        //public Selection(string _prefabName, abilitys.ability _ability)
-        //{
-        //    prefabName = _prefabName;
-        //    ability = _ability;
-        //}
-        public string spriteName;
-        public Actions.Action action;
-        public Color color;
-
-        public Selection(string _spriteName, Actions.Action _action, Color _color)
-        {
-            spriteName = _spriteName;
-            action = _action;
-            color = _color;
-        }
-    }
-
-    //struct Element
-    //{
-    //    public GameObject go;
-    //    public SpriteRenderer sr;
-
-    //    public Element(GameObject _go, SpriteRenderer _sr)
-    //    {
-    //        go = _go;
-    //        sr = _sr;
-    //    }
-    //}
 }

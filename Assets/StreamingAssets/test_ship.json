@@ -1,5 +1,6 @@
 {
 	"name": "Test Ship",
+	"buildFlavor": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
 	"usedTiles": [
 		0,0,
 		1,0,
@@ -13,12 +14,12 @@
 		2,1,
 		2,-1
 	],
-	"cost": 10,
+	"buildCost": 10,
 	"canBuild": [
-		"test_boat"
+		"test_ship"
 	],
-	"actionName": "TestAbility",
-	"actionCost": 10,
-	"actionFlavor": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
-	"actionCooldown": 1.5
+	"abilityName": "TestAbility",
+	"abilityCost": 10,
+	"abilityFlavor": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+	"abilityCooldown": 1.5
 }
