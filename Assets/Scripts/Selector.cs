@@ -8,6 +8,9 @@ public class Selector : MonoBehaviour {
 
     GameManager gm;
 
+    float POP_IN_TIME = 0.1f;
+    float POP_OUT_TIME = 0.1f;
+
     public void Initialize(Ship.Config config)
     {
         gm = GameManager.GetManager();
@@ -90,24 +93,99 @@ public class Selector : MonoBehaviour {
         return Resources.Load("Sprites/" + spriteName) as Sprite;
     }
 
-    void AddByEnable(Queue<GameObject> queue, string name, bool desiredEnabled)
+    void AddByEnable(Queue<List<ElementWithScale>> queue, bool desiredEnabled, params string[] names)
     {
-        GameObject go = elements[name];
-        if (go.activeSelf == desiredEnabled)
+        List<ElementWithScale> row = new List<ElementWithScale>();
+        foreach (string name in names)
         {
-            queue.Enqueue(go);
+            GameObject go = elements[name];
+            if (go.activeSelf == desiredEnabled)
+            {
+                ElementWithScale col = new ElementWithScale();
+                col.element = go;
+                col.scale = go.GetComponent<RectTransform>().sizeDelta;
+                row.Add(col);
+            }
         }
+        queue.Enqueue(row);
     }
 
     IEnumerator PopIn()
     {
-        //Queue<GameObject> queue = new Queue<GameObject>();
-        //AddByEnable()
+        Queue<List<ElementWithScale>> queue = new Queue<List<ElementWithScale>>();
+        AddByEnable(queue, true, "Arrow");
+        AddByEnable(queue, true, "BuildBox", "AbilityBox");
+        AddByEnable(queue, true, "BuildHeader", "AbilityHeader");
+        AddByEnable(queue, true, "BuildOne", "BuildTwo", "BuildThree", "Ability");
+        foreach (List<ElementWithScale> list in queue)
+        {
+            foreach (ElementWithScale element in list)
+            {
+                //Debug.Log(element.element.name);
+                element.element.GetComponent<RectTransform>().sizeDelta = new Vector2(0.001f, 0.001f);
+            }
+        }
+        while (queue.Count > 0)
+        {
+            List<ElementWithScale> list = queue.Dequeue();
+            float timeElapsed = 0.0f;
+            while (timeElapsed < POP_IN_TIME)
+            {
+                timeElapsed += Time.deltaTime;
+                float progression = timeElapsed / POP_IN_TIME;
+                foreach (ElementWithScale ews in list)
+                {
+                    ews.element.GetComponent<RectTransform>().sizeDelta = new Vector2(Mathf.Clamp(ews.scale.x * progression, 0.0f, 100.0f), Mathf.Clamp(ews.scale.y * progression, 0.0f, 100.0f));
+                }
+                //Debug.Log(progression);
+                yield return new WaitForEndOfFrame();
+            }
+            foreach (ElementWithScale ews in list)
+            {
+                ews.element.GetComponent<RectTransform>().sizeDelta = ews.scale;
+            }
+        }
         yield return new WaitForEndOfFrame();
+    }
+
+    public struct ElementWithScale
+    {
+        public GameObject element;
+        public Vector2 scale;
+
+        public ElementWithScale(GameObject _element, Vector2 _scale)
+        {
+            element = _element;
+            scale = _scale;
+        }
     }
 
     IEnumerator PopOut()
     {
+        Queue<List<ElementWithScale>> queue = new Queue<List<ElementWithScale>>();
+        AddByEnable(queue, true, "BuildOne", "BuildTwo", "BuildThree", "Ability");
+        AddByEnable(queue, true, "BuildHeader", "AbilityHeader");
+        AddByEnable(queue, true, "BuildBox", "AbilityBox");
+        AddByEnable(queue, true, "Arrow");
+        while (queue.Count > 0)
+        {
+            List<ElementWithScale> list = queue.Dequeue();
+            float timeElapsed = 0.0f;
+            while (timeElapsed < POP_OUT_TIME)
+            {
+                timeElapsed += Time.deltaTime;
+                float progression = 1.0f - (timeElapsed / POP_OUT_TIME);
+                foreach (ElementWithScale ews in list)
+                {
+                    ews.element.GetComponent<RectTransform>().sizeDelta = new Vector2(Mathf.Clamp(ews.scale.x * progression, 0.0f, 100.0f), Mathf.Clamp(ews.scale.y * progression, 0.0f, 100.0f));
+                }
+                yield return new WaitForEndOfFrame();
+            }
+            foreach (ElementWithScale ews in list)
+            {
+                ews.element.GetComponent<RectTransform>().sizeDelta = new Vector2(0.001f, 0.001f);
+            }
+        }
         Destroy(this.gameObject);
         yield return new WaitForEndOfFrame();
     }
