@@ -7,7 +7,7 @@ public class Helicopter : MonoBehaviour {
     Vector3 goal;
 
     int PAYLOAD = 10;
-    float SPEED = 8.0f;
+    float SPEED = 12.0f;
     float ARRIVAL_DISTANCE = 0.1f;
 
     public void Initialize()

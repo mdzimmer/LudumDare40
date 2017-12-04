@@ -13,6 +13,8 @@ public class GameManager : MonoBehaviour {
     public Transform debugPointer;
     public Grid grid;
     public Overlay overlay;
+    public AudioSource nope;
+    public AudioSource splash;
 
     Vector3 previousMousePosition = Vector3.zero;
     Selector curSelector;
@@ -27,6 +29,11 @@ public class GameManager : MonoBehaviour {
     float SPAWN_BUFFER_DISTANCE = 15.0f;
     float HELICOPTER_HEIGHT = 1.0f;
     float GHOST_OPACITY = 0.5f;
+
+    void Start()
+    {
+        grid = new Grid();
+    }
 
     // Update is called once per frame
     void Update () {
@@ -74,6 +81,9 @@ public class GameManager : MonoBehaviour {
                 {
                     curSelector.Close();
                     curSelector = null;
+                } else
+                {
+                    nope.Play();
                 }
             }
             else if (buildGhost != null)
@@ -83,6 +93,10 @@ public class GameManager : MonoBehaviour {
                     buildGhost.Build();
                     buildGhost = null;
                     currency.IncrementValue(-buildCost);
+                    splash.Play();
+                } else
+                {
+                    nope.Play();
                 }
             }
             else if (shipOnTile != null && curSelector == null)
@@ -126,7 +140,6 @@ public class GameManager : MonoBehaviour {
     public void BeginGame()
     {
         running = true;
-        grid = new Grid();
         Ship startShip = new Ship("test_ship", new Vector2(0, 0));
         startShip.Build();
         helicopters = new List<Helicopter>();
