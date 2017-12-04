@@ -30,6 +30,10 @@ public class Currency : MonoBehaviour
             goalValue = MAX_VALUE;
             gm.EndGame();
         }
+        if (amt > 0)
+        {
+            GetComponent<AudioSource>().Play();
+        }
     }
 
     void UpdateDisplay()

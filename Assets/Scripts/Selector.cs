@@ -5,6 +5,7 @@ using UnityEngine.UI;
 
 public class Selector : MonoBehaviour {
     public Dictionary<string, GameObject> elements;
+    public AudioSource boop;
 
     GameManager gm;
 
@@ -121,7 +122,6 @@ public class Selector : MonoBehaviour {
         {
             foreach (ElementWithScale element in list)
             {
-                //Debug.Log(element.element.name);
                 element.element.GetComponent<RectTransform>().sizeDelta = new Vector2(0.001f, 0.001f);
             }
         }
@@ -137,7 +137,6 @@ public class Selector : MonoBehaviour {
                 {
                     ews.element.GetComponent<RectTransform>().sizeDelta = new Vector2(Mathf.Clamp(ews.scale.x * progression, 0.0f, 100.0f), Mathf.Clamp(ews.scale.y * progression, 0.0f, 100.0f));
                 }
-                //Debug.Log(progression);
                 yield return new WaitForEndOfFrame();
             }
             foreach (ElementWithScale ews in list)

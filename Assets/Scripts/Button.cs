@@ -15,6 +15,8 @@ public class Button : MonoBehaviour {
     Currency currency;
     bool showing = false;
     List<Selector.ElementWithScale> ewsList;
+    AudioSource boop;
+    Selector parent;
 
 
     float SHOW_DESCRIPTION_TIME = 0.1f;
@@ -24,7 +26,9 @@ public class Button : MonoBehaviour {
     {
         gm = GameManager.GetManager();
         currency = gm.currency;
-        elements = transform.parent.gameObject.GetComponent<Selector>().elements;
+        parent = transform.parent.gameObject.GetComponent<Selector>();
+        elements = parent.elements;
+        boop = parent.boop;
         ewsList = new List<Selector.ElementWithScale>()
         {
             Load("DescriptionBox"),
@@ -40,6 +44,7 @@ public class Button : MonoBehaviour {
         {
             return false;
         }
+        boop.Play();
         action(cost);
         return true;
     }
@@ -50,6 +55,7 @@ public class Button : MonoBehaviour {
         {
             return;
         }
+        boop.Play();
         showing = true;
         StopCoroutine(DoHideDescription());
         elements["DescriptionBox"].SetActive(true);
