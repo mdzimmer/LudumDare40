@@ -13,15 +13,25 @@ public class Button : MonoBehaviour {
 
     GameManager gm;
     Currency currency;
-    
-    float SHOW_DESCRIPTION_TIME = 0.25f;
-    float HIDE_DESCRIPTION_TIME = 0.25f;
+    bool showing = false;
+    List<Selector.ElementWithScale> ewsList;
+
+
+    float SHOW_DESCRIPTION_TIME = 0.1f;
+    float HIDE_DESCRIPTION_TIME = 0.1f;
 
     void Start()
     {
         gm = GameManager.GetManager();
         currency = gm.currency;
         elements = transform.parent.gameObject.GetComponent<Selector>().elements;
+        ewsList = new List<Selector.ElementWithScale>()
+        {
+            Load("DescriptionBox"),
+            Load("Name"),
+            Load("Cost"),
+            Load("Flavor")
+        };
     }
 
 	public bool DoAction()
@@ -36,7 +46,12 @@ public class Button : MonoBehaviour {
 
     public void ShowDescription()
     {
-        //StopCoroutine(DoHideDescription());
+        if (showing)
+        {
+            return;
+        }
+        showing = true;
+        StopCoroutine(DoHideDescription());
         elements["DescriptionBox"].SetActive(true);
         elements["Name"].SetActive(true);
         elements["Name"].GetComponent<Text>().text = name;
@@ -44,51 +59,69 @@ public class Button : MonoBehaviour {
         elements["Cost"].GetComponent<Text>().text = cost + " gold";
         elements["Flavor"].SetActive(true);
         elements["Flavor"].GetComponent<Text>().text = flavor;
-        //StartCoroutine(DoShowDescription());
+        StartCoroutine(DoShowDescription());
     }
 
     public void HideDescription()
     {
-        //StopCoroutine(DoShowDescription());
+        if (!showing)
+        {
+            return;
+        }
+        showing = false;
+        StopCoroutine(DoShowDescription());
+        StartCoroutine(DoHideDescription());
+    }
+
+    Selector.ElementWithScale Load(string name)
+    {
+        GameObject go = elements[name];
+        Selector.ElementWithScale output = new Selector.ElementWithScale(
+            go,
+            go.GetComponent<RectTransform>().sizeDelta
+            );
+        return output;
+    }
+
+    IEnumerator DoShowDescription()
+    {
+        float elapsedtime = 0.0f;
+        while (elapsedtime < SHOW_DESCRIPTION_TIME)
+        {
+            elapsedtime += Time.deltaTime;
+            float progress = elapsedtime / SHOW_DESCRIPTION_TIME;
+            foreach (Selector.ElementWithScale ews in ewsList)
+            {
+                ews.element.GetComponent<RectTransform>().sizeDelta = new Vector2(ews.scale.x * progress, ews.scale.y * progress);
+            }
+            yield return new WaitForEndOfFrame();
+        }
+        foreach (Selector.ElementWithScale ews in ewsList)
+        {
+            ews.element.GetComponent<RectTransform>().sizeDelta = new Vector2(ews.scale.x, ews.scale.y);
+        }
+    }
+
+    IEnumerator DoHideDescription()
+    {
+        float elapsedtime = 0.0f;
+        while (elapsedtime < SHOW_DESCRIPTION_TIME)
+        {
+            elapsedtime += Time.deltaTime;
+            float progress = 1.0f - Mathf.Min((elapsedtime / SHOW_DESCRIPTION_TIME), 1.0f);
+            foreach (Selector.ElementWithScale ews in ewsList)
+            {
+                ews.element.GetComponent<RectTransform>().sizeDelta = new Vector2(ews.scale.x * progress, ews.scale.y * progress);
+            }
+            yield return new WaitForEndOfFrame();
+        }
         elements["DescriptionBox"].SetActive(false);
         elements["Name"].SetActive(false);
         elements["Cost"].SetActive(false);
         elements["Flavor"].SetActive(false);
-        //StartCoroutine(DoHideDescription());
+        foreach (Selector.ElementWithScale ews in ewsList)
+        {
+            ews.element.GetComponent<RectTransform>().sizeDelta = new Vector2(ews.scale.x, ews.scale.y);
+        }
     }
-
-    //Selector.ElementWithScale Load(string name)
-    //{
-    //    GameObject go = elements[name];
-    //    Selector.ElementWithScale output = new Selector.ElementWithScale(
-    //        go,
-    //        go.GetComponent<RectTransform>().sizeDelta
-    //        );
-    //}
-
-    //IEnumerator DoShowDescription()
-    //{
-    //    List<Selector.ElementWithScale> elements = new List<Selector.ElementWithScale>()
-    //    {
-    //        Load("Description"),
-    //        Load("Name"),
-    //        Load("Cost"),
-    //        Load("Flavor")
-    //    };
-    //    float elapsedtime = 0.0f;
-    //    while (elapsedtime < SHOW_DESCRIPTION_TIME)
-    //    {
-    //        elapsedtime += Time.deltaTime;
-    //        float progress = elapsedtime / SHOW_DESCRIPTION_TIME;
-    //        foreach(Selector.ElementWithScale ews in elements)
-    //        {
-
-    //        }
-    //    }
-    //}
-
-    //IEnumerator DoHideDescription()
-    //{
-
-    //}
 }
