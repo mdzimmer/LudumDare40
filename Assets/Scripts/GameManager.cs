@@ -11,66 +11,91 @@ public class GameManager : MonoBehaviour {
     public Currency currency;
     public Transform cameraHandle;
     public Transform debugPointer;
+    public Grid grid;
+    public Overlay overlay;
 
-    Grid grid;
     Vector3 previousMousePosition = Vector3.zero;
     Selector curSelector;
     Ship buildGhost;
+    int buildCost;
+    Button curButton;
+    bool running = false;
+    List<Helicopter> helicopters;
 
-    // Use this for initialization
-    void Start() {
-        grid = new Grid();
-        Ship startShip = new Ship(grid, "test_ship", new Vector2(0, 0));
-        startShip.Build();
-        //for (int i = -1; i < 2; i++)
-        //{
-        //    for (int j = -1; j < 2; j++)
-        //    {
-        //        GameObject go = CreatePrefab("TestCube");
-        //        go.transform.position = grid.TileToPosition(new Vector2(i, j));
-        //        go.name = i + ", " + j;
-        //    }
-        //}
-    }
-	
-	// Update is called once per frame
-	void Update () {
+    float MIN_SPAWN_INTERVAL = 2.0f;
+    float MAX_SPAWN_INTERVAL = 4.0f;
+    float SPAWN_BUFFER_DISTANCE = 15.0f;
+    float HELICOPTER_HEIGHT = 1.0f;
+    float GHOST_OPACITY = 0.5f;
+    //int MIN_PAYLOAD = 1;
+    //int MAX_PAYLOAD = 10;
+
+    //// Use this for initialization
+    //void Start()
+    //{
+    //}
+
+    // Update is called once per frame
+    void Update () {
+        if (!running)
+        {
+            return;
+        }
         Vector3 mousePosition = GetMousePosition();
         debugPointer.position = mousePosition;
         Vector2 mouseTile = grid.MouseToTile();
         Ship shipOnTile = grid.tiles.ContainsKey(mouseTile) ? grid.tiles[mouseTile] : null;
+        Vector3 vectorOrigin = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+        //vectorOrigin.y = vectorOrigin.y / Mathf.Sqrt(2.0f);
+        Vector3 vectorEnd = GetMousePosition();
+        Vector3 vector = vectorEnd - vectorOrigin;
+        //Vector3 vector = new Vector3(-1.0f / 3.0f, -1.0f / 3.0f, 1.0f / 3.0f).normalized;
+        RaycastHit[] hits = Physics.RaycastAll(vectorOrigin, vector);
+        //Debug.DrawLine(vectorOrigin, vectorOrigin + vector * 100.0f, Color.red, 1000.0f);
+        bool hitButton = false;
+        foreach (RaycastHit hit in hits)
+        {
+            Button button = hit.collider.GetComponent<Button>();
+            if (button != null)
+            {
+                if (button != curButton)
+                {
+                    button.HideDescription();
+                }
+                curButton = button;
+                hitButton = true;
+                break;
+            }
+        }
+        if (!hitButton && curButton != null)
+        {
+            curButton.HideDescription();
+            curButton = null;
+        }
+        if (curButton != null)
+        {
+            curButton.ShowDescription();
+        }
         if (Input.GetMouseButtonUp(0))
         {
-            if (curSelector != null)
+            if (curSelector != null && curButton != null)
             {
-                Vector3 vectorOrigin = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-                vectorOrigin.y = vectorOrigin.y / Mathf.Sqrt(2.0f);
-                Vector3 vector = new Vector3(-1.0f / 3.0f, -1.0f / 3.0f, 1.0f / 3.0f).normalized;
-                RaycastHit[] hits = Physics.RaycastAll(vectorOrigin, vector);
-                //Debug.DrawLine(vectorOrigin, vectorOrigin + vector * 10.0f, Color.red, 100.0f);
-                foreach(RaycastHit hit in hits)
+                if (curButton.DoAction())
                 {
-                    //Debug.Log(hit.collider.gameObject.name);
-                    Button button = hit.collider.GetComponent<Button>();
-                    if (button != null)
-                    {
-                        //Debug.Log("button");
-                        button.action();
-                        curSelector.Close();
-                        break;
-                    }
+                    curSelector.Close();
+                    curSelector = null;
                 }
             }
             else if (buildGhost != null)
             {
                 if (buildGhost.ValidBuild())
                 {
-                    //Debug.Log("build");
                     buildGhost.Build();
                     buildGhost = null;
+                    currency.IncrementValue(-buildCost);
                 }
             }
-            else if (shipOnTile != null)
+            else if (shipOnTile != null && curSelector == null)
             {
                 curSelector = shipOnTile.GenerateSelector(mousePosition);
             }
@@ -85,7 +110,7 @@ public class GameManager : MonoBehaviour {
             previousMousePosition = GetMousePosition();
             if (buildGhost != null)
             {
-                buildGhost.Destroy();
+                buildGhost.Stop();
                 buildGhost = null;
             }
         }
@@ -98,13 +123,65 @@ public class GameManager : MonoBehaviour {
         if (buildGhost != null)
         {
             buildGhost.UpdateTiles(grid.MouseToTile());
-            //Debug.Log("update");
+            if (!buildGhost.ValidBuild())
+            {
+                buildGhost.SetTint(Color.red);
+            } else
+            {
+                buildGhost.SetTint();
+            }
         }
 	}
 
-    public void StartBuild(string shipName)
+    public void BeginGame()
     {
-        buildGhost = new Ship(grid, shipName, grid.MouseToTile());
+        running = true;
+        grid = new Grid();
+        Ship startShip = new Ship("test_ship", new Vector2(0, 0));
+        startShip.Build();
+        helicopters = new List<Helicopter>();
+        StartCoroutine(SpawnHelicopters());
+    }
+
+    public void EndGame()
+    {
+        //running = false;
+        //StopCoroutine(SpawnHelicopters());
+        //Queue<Ship> ships = new Queue<Ship>();
+        //foreach (KeyValuePair<Vector2, Ship> pair in grid.tiles)
+        //{
+        //    if (!ships.Contains(pair.Value))
+        //    {
+        //        ships.Enqueue(pair.Value);
+        //    }
+        //}
+        //while (ships.Count > 0)
+        //{
+        //    Ship ship = ships.Dequeue();
+        //    ship.Stop();
+        //}
+        //foreach (Helicopter helicopter in helicopters)
+        //{
+        //    if (helicopter != null)
+        //    {
+        //        Destroy(helicopter.gameObject);
+        //    }
+        //}
+        //overlay.GoToEnd();
+        //Application.LoadLevel("Scenes/test_scene");
+        //SceneManager.LoadScene("test_scene", LoadSceneMode.Single);
+        if (running)
+        {
+            running = false;
+            overlay.GoToEnd();
+        }
+    }
+
+    public void StartBuild(string shipName, int _buildCost)
+    {
+        buildGhost = new Ship(shipName, grid.MouseToTile());
+        buildGhost.SetOpacity(GHOST_OPACITY);
+        buildCost = _buildCost;
     }
 
     public GameObject CreatePrefab(string prefab)
@@ -123,13 +200,46 @@ public class GameManager : MonoBehaviour {
         return intersectionPoint;
     }
 
+    public void DoDestroy(GameObject go)
+    {
+        Destroy(go);
+    }
+
     float Dot(Vector3 a, Vector3 b)
     {
         return a.x * b.x + a.y * b.y + a.z * b.z;
     }
 
-    public void DoDestroy(GameObject go)
+    IEnumerator SpawnHelicopters()
     {
-        Destroy(go);
+        float elapsedTime = 0.0f;
+        float timeToSpawn = 0.0f;
+        while (true)
+        {
+            if (!running)
+            {
+                break;
+            }
+            if (elapsedTime >= timeToSpawn)
+            {
+                float spawnAngle = Random.Range(0.0f, Mathf.PI * 2.0f);
+                Vector3 spawnOffset = new Vector3(
+                    Mathf.Cos(spawnAngle) * SPAWN_BUFFER_DISTANCE,
+                    HELICOPTER_HEIGHT,
+                    Mathf.Sin(spawnAngle) * SPAWN_BUFFER_DISTANCE
+                );
+                GameObject go = CreatePrefab("Helicopter");
+                Vector3 cameraPosition = cameraHandle.position;
+                cameraPosition.y = 0.0f;
+                go.transform.position = cameraPosition + spawnOffset;
+                Helicopter helicopter = go.GetComponent<Helicopter>();
+                helicopter.Initialize();
+                helicopters.Add(helicopter);
+                elapsedTime = 0.0f;
+                timeToSpawn = Random.Range(MIN_SPAWN_INTERVAL, MAX_SPAWN_INTERVAL);
+            }
+            elapsedTime += Time.deltaTime;
+            yield return new WaitForEndOfFrame();
+        }
     }
 }
