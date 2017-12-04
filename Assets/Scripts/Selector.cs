@@ -88,6 +88,25 @@ public class Selector : MonoBehaviour {
                 return Actions.longBoat;
             case "barracks":
                 return Actions.barracks;
+            case "berserkersHold":
+                return Actions.berserkersHold;
+            case "cheiftainsHold":
+                return Actions.cheiftainsHold;
+            case "danceHall":
+                return Actions.danceHall;
+            case "dragonPen":
+                return Actions.dragonPen;
+            case "drumBoat":
+                return Actions.drumBoat;
+            case "meadHall":
+                return Actions.meadHall;
+            case "shrine":
+                return Actions.shrine;
+            case "stadium":
+                return Actions.stadium;
+            case "wishingWell":
+                return Actions.wishingWell;
+
         }
         return null;
     }

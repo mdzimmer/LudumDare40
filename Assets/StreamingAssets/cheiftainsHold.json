@@ -1,10 +1,16 @@
 {
-	"name": "Longboat",
-	"buildFlavor": "Longboat flavor text",
+	"name": "Cheiftens Hold",
+	"buildFlavor": "cheif flavor text",
 	"usedTiles": [
 		0,0,
+		-1,1,
+		0,1,
+		1,1,
+		1,0,
+		1,-1,
 		0,-1,
-		0,1
+		-1,-1,
+		-1,0
 	],
 	"unusedTiles": [
 
@@ -13,16 +19,7 @@
 	"canBuild": [
 		"test_ship",
 		"longBoat",
-		"barracks",
-		"berserkersHold",
-		"cheiftainsHold",
-		"danceHall",
-		"dragonPen",
-		"drumBoat",
-		"meadHall",
-		"shrine",
-		"stadium",
-		"wishingWell"
+		"barracks"
 	],
 	"abilityName": "willBeNone",
 	"abilityCost": 10,

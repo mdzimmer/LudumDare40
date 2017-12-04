@@ -1,0 +1,27 @@
+{
+	"name": "Drum Boat",
+	"buildFlavor": "Barracks flavor text",
+	"usedTiles": [
+		0,2,
+		2,0,
+		0,-2,
+		-2,0
+	],
+	"unusedTiles": [
+		0,1,
+		0,0,
+		1,0,
+		0,-1,
+		-1,0
+	],
+	"buildCost": 10,
+	"canBuild": [
+		"test_ship",
+		"longBoat",
+		"barracks"
+	],
+	"abilityName": "willBeNone",
+	"abilityCost": 10,
+	"abilityFlavor": "Ability Flavor",
+	"abilityCooldown": 1.5
+}

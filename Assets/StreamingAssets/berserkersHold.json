@@ -1,0 +1,24 @@
+{
+	"name": "Berserkers Hold",
+	"buildFlavor": "Berserserkekerer flavor text",
+	"usedTiles": [
+		0,0,
+		-1,1,
+		1,0,
+		2,-1
+	],
+	"unusedTiles": [
+		-1,0,
+		2,0
+	],
+	"buildCost": 10,
+	"canBuild": [
+		"test_ship",
+		"longBoat",
+		"barracks"
+	],
+	"abilityName": "willBeNone",
+	"abilityCost": 10,
+	"abilityFlavor": "Ability Flavor",
+	"abilityCooldown": 1.5
+}

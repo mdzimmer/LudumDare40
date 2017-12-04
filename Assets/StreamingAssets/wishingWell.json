@@ -1,0 +1,23 @@
+{
+	"name": "Wishing Well",
+	"buildFlavor": "Barracks flavor text",
+	"usedTiles": [
+		-1,0,
+		1,0,
+		0,-1
+	],
+	"unusedTiles": [
+		0,1,
+		0,0
+	],
+	"buildCost": 10,
+	"canBuild": [
+		"test_ship",
+		"longBoat",
+		"barracks"
+	],
+	"abilityName": "willBeNone",
+	"abilityCost": 10,
+	"abilityFlavor": "Ability Flavor",
+	"abilityCooldown": 1.5
+}
