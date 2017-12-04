@@ -22,7 +22,7 @@ public class Ship {
         gm = GameManager.GetManager();
         grid = gm.grid;
         config = LoadConfig(configFile);
-        model = gm.CreatePrefab(config.name);
+        model = gm.CreatePrefab( "Boats/" + config.name);
         UpdateTiles(originTile);
         startColor = model.transform.GetChild(0).GetComponent<MeshRenderer>().material.GetColor("_Color");
     }

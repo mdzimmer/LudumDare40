@@ -14,4 +14,14 @@ public class Actions {
     {
         GameManager.GetManager().StartBuild("test_ship", cost);
     }
+
+    public static void longBoat(int cost)
+    {
+        GameManager.GetManager().StartBuild("longBoat", cost);
+    }
+
+    public static void barracks(int cost)
+    {
+        GameManager.GetManager().StartBuild("barracks", cost);
+    }
 }

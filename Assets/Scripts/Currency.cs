@@ -12,7 +12,7 @@ public class Currency : MonoBehaviour
     Text text;
 
     float TICK_TIME = 0.01f;
-    int MAX_VALUE = 100;
+    int MAX_VALUE = 100000;
 
     public void Initialize()
     {

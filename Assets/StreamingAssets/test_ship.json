@@ -16,7 +16,9 @@
 	],
 	"buildCost": 10,
 	"canBuild": [
-		"test_ship"
+		"test_ship",
+		"longBoat",
+		"barracks"
 	],
 	"abilityName": "TestAbility",
 	"abilityCost": 10,

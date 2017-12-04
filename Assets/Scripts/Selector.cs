@@ -84,6 +84,10 @@ public class Selector : MonoBehaviour {
                 return Actions.TestAbility;
             case "test_ship":
                 return Actions.TestBuild;
+            case "longBoat":
+                return Actions.longBoat;
+            case "barracks":
+                return Actions.barracks;
         }
         return null;
     }
