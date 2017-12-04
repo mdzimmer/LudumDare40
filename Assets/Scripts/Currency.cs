@@ -14,7 +14,7 @@ public class Currency : MonoBehaviour
     float TICK_TIME = 0.01f;
     int MAX_VALUE = 100;
 
-    void Start()
+    public void Initialize()
     {
         gm = GameManager.GetManager();
         StartCoroutine(UpdateValue());

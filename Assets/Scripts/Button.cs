@@ -9,10 +9,13 @@ public class Button : MonoBehaviour {
     public string name;
     public string flavor;
     public float cooldown;
+    public Dictionary<string, GameObject> elements;
 
     GameManager gm;
     Currency currency;
-    public Dictionary<string, GameObject> elements;
+    
+    float SHOW_DESCRIPTION_TIME = 0.25f;
+    float HIDE_DESCRIPTION_TIME = 0.25f;
 
     void Start()
     {
@@ -33,6 +36,7 @@ public class Button : MonoBehaviour {
 
     public void ShowDescription()
     {
+        //StopCoroutine(DoHideDescription());
         elements["DescriptionBox"].SetActive(true);
         elements["Name"].SetActive(true);
         elements["Name"].GetComponent<Text>().text = name;
@@ -40,13 +44,51 @@ public class Button : MonoBehaviour {
         elements["Cost"].GetComponent<Text>().text = cost + " gold";
         elements["Flavor"].SetActive(true);
         elements["Flavor"].GetComponent<Text>().text = flavor;
+        //StartCoroutine(DoShowDescription());
     }
 
     public void HideDescription()
     {
+        //StopCoroutine(DoShowDescription());
         elements["DescriptionBox"].SetActive(false);
         elements["Name"].SetActive(false);
         elements["Cost"].SetActive(false);
         elements["Flavor"].SetActive(false);
+        //StartCoroutine(DoHideDescription());
     }
+
+    //Selector.ElementWithScale Load(string name)
+    //{
+    //    GameObject go = elements[name];
+    //    Selector.ElementWithScale output = new Selector.ElementWithScale(
+    //        go,
+    //        go.GetComponent<RectTransform>().sizeDelta
+    //        );
+    //}
+
+    //IEnumerator DoShowDescription()
+    //{
+    //    List<Selector.ElementWithScale> elements = new List<Selector.ElementWithScale>()
+    //    {
+    //        Load("Description"),
+    //        Load("Name"),
+    //        Load("Cost"),
+    //        Load("Flavor")
+    //    };
+    //    float elapsedtime = 0.0f;
+    //    while (elapsedtime < SHOW_DESCRIPTION_TIME)
+    //    {
+    //        elapsedtime += Time.deltaTime;
+    //        float progress = elapsedtime / SHOW_DESCRIPTION_TIME;
+    //        foreach(Selector.ElementWithScale ews in elements)
+    //        {
+
+    //        }
+    //    }
+    //}
+
+    //IEnumerator DoHideDescription()
+    //{
+
+    //}
 }
